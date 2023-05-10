@@ -33,13 +33,34 @@ def get_lineup():
             return True
 
 
-# def get_all_position():
-#     position = input('Which position? ')
-#     return position
+def get_all_position():
+    while True:
+        position = input('Which position? (type "back" to go back to search) ')
+
+        if position == 'back':
+            return False
+
+        c.execute("""
+            SELECT Players.name, Teams.name
+            FROM Players
+            JOIN Teams ON Players.team_id = Teams.id
+            WHERE Players.position LIKE ?
+        """, ('%' + position + '%',))
+        players = c.fetchall()
+
+        if not players:
+            print(f"No position named '{position}' was found.\nChoose one of the following: PG, SG, SF, PF, C.")
+
+        else:
+            print(f"The following players play {position}:")
+            for player in players:
+                print(f"{player[0]} ({player[1]})")
+            return True
+
 
 # def get_standings():
 #     standings = ''
-#     return standings
+#     return standings put them into different tuples or arrays based on division, sorted by standing
 
 # def print_info(name, age, color):
 #     print(f'Your name is {name}.')

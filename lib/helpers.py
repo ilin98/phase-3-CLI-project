@@ -58,9 +58,37 @@ def get_all_position():
             return True
 
 
-# def get_standings():
-#     standings = ''
-#     return standings put them into different tuples or arrays based on division, sorted by standing
+def get_standings():
+    divisions = ["Atlantic", "Central", "Southeast", "Northwest", "Pacific", "Southwest"]
+    div_teams = {}
+
+    for division in divisions:
+        c.execute('SELECT name, wins, losses FROM Teams WHERE division=?', (division,))
+        div_teams[division] = c.fetchall()
+
+    print(div_teams["Atlantic"][0])
+
+
+    # c.execute('SELECT name, wins, losses FROM Teams where division="Atlantic"')
+    # atlantic = c.fetchall()
+
+    # c.execute('SELECT name, wins, losses FROM Teams where division="Central"')
+    # central = c.fetchall()
+
+    # c.execute('SELECT name, wins, losses FROM Teams where division="Southeast"')
+    # southeast = c.fetchall()
+
+    # c.execute('SELECT name, wins, losses FROM Teams where division="Northwest"')
+    # northwest = c.fetchall()
+
+    # c.execute('SELECT name, wins, losses FROM Teams where division="Pacific"')
+    # pacific = c.fetchall()
+
+    # c.execute('SELECT name, wins, losses FROM Teams where division="Southwest"')
+    # southwest = c.fetchall()
+
+
+# return standings put them into different tuples or arrays based on division, sorted by standing
 
 # def print_info(name, age, color):
 #     print(f'Your name is {name}.')

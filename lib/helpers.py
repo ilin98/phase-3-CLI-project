@@ -66,31 +66,42 @@ def get_standings():
         c.execute('SELECT name, wins, losses FROM Teams WHERE division=?', (division,))
         div_teams[division] = c.fetchall()
 
-    print(div_teams["Atlantic"][0])
+    atlantic = sorted(div_teams["Atlantic"], key=lambda x: x[1], reverse=True)
+    central = sorted(div_teams["Central"], key=lambda x: x[1], reverse=True)
+    southeast = sorted(div_teams["Southeast"], key=lambda x: x[1], reverse=True)
+    northwest = sorted(div_teams["Northwest"], key=lambda x: x[1], reverse=True)
+    pacific = sorted(div_teams["Pacific"], key=lambda x: x[1], reverse=True)
+    southwest = sorted(div_teams["Southwest"], key=lambda x: x[1], reverse=True)
+
+    print("       Atlantic Division")
+    for team in atlantic:
+        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
+    print("       Central Division")
+    for team in central:
+        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
+    print("       Southeast Division")
+    for team in southeast:
+        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
+    print("       Northwest Division")
+    for team in northwest:
+        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
+    print("       Pacific Division")
+    for team in pacific:
+        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
+    print("       Southwest Division")
+    for team in southwest:
+        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
+
+def add_win():
+    while True:
+        team = input('Who won? (type "back" to go back to search) ')
+
+        if team == 'back':
+            return False
+
+        c.execute("SELECT name, wins FROM Teams WHERE name LIKE ?", ('%' + team + '%'))
 
 
-    # c.execute('SELECT name, wins, losses FROM Teams where division="Atlantic"')
-    # atlantic = c.fetchall()
-
-    # c.execute('SELECT name, wins, losses FROM Teams where division="Central"')
-    # central = c.fetchall()
-
-    # c.execute('SELECT name, wins, losses FROM Teams where division="Southeast"')
-    # southeast = c.fetchall()
-
-    # c.execute('SELECT name, wins, losses FROM Teams where division="Northwest"')
-    # northwest = c.fetchall()
-
-    # c.execute('SELECT name, wins, losses FROM Teams where division="Pacific"')
-    # pacific = c.fetchall()
-
-    # c.execute('SELECT name, wins, losses FROM Teams where division="Southwest"')
-    # southwest = c.fetchall()
-
-
-# return standings put them into different tuples or arrays based on division, sorted by standing
-
-# def print_info(name, age, color):
-#     print(f'Your name is {name}.')
-#     print(f'You are {age} years old.')
-#     print(f'Your favorite color is {color}.')
+# UPDATE Teams
+# SET win = win + 1
+# WHERE name = 'team_name';

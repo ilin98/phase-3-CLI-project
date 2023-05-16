@@ -16,7 +16,9 @@ if __name__ == '__main__':
         elif search_query == 'standings':
             get_standings()
             search_query = search()
-        elif search_query == 'exit' or 'quit':
+        elif search_query == 'win':
+            pass
+        elif search_query == 'quit':
             print('Goodbye!')
             break
         else:

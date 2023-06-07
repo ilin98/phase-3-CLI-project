@@ -112,3 +112,24 @@ def add_win():
 
             print(f"The {team_name} are now {wins + 1} - {losses}.")
             return True
+
+def add_loss():
+    while True:
+        team = input('Who lost? (type "back" to go back to search) ')
+
+        if team == 'back':
+            return False
+
+        c.execute("SELECT name, wins, losses FROM Teams WHERE name LIKE ? ", ('%' + team + '%',))
+        selected_team = c.fetchone()
+
+        if not selected_team:
+            print(f"No team name '{team}' was found.")
+        else:
+            team_name, wins, losses = selected_team
+
+            c.execute("UPDATE Teams SET losses = ? WHERE name = ?", (losses + 1, team_name))
+            conn.commit
+
+            print(f"The {team_name} are now {wins} - {losses + 1}.")
+            return True

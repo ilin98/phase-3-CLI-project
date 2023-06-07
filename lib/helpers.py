@@ -99,9 +99,16 @@ def add_win():
         if team == 'back':
             return False
 
-        c.execute("SELECT name, wins FROM Teams WHERE name LIKE ?", ('%' + team + '%'))
+        c.execute("SELECT name, wins, losses FROM Teams WHERE name LIKE ?", ('%' + team + '%',))
+        selected_team = c.fetchone()
 
+        if not selected_team:
+            print(f"No team named '{team}' was found.")
+        else:
+            team_name, wins, losses = selected_team
 
-# UPDATE Teams
-# SET win = win + 1
-# WHERE name = 'team_name';
+            c.execute("UPDATE Teams SET wins = ? WHERE name = ?", (wins + 1, team_name))
+            conn.commit()
+
+            print(f"The {team_name} are now {wins + 1} - {losses}.")
+            return True

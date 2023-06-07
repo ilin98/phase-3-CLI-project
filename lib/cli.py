@@ -1,6 +1,6 @@
 #!/user/bin/env python3
 
-from helpers import search, get_lineup, get_all_position, get_standings
+from helpers import search, get_lineup, get_all_position, get_standings, add_win
 
 if __name__ == '__main__':
     print('Welcome to my CLI!')
@@ -17,7 +17,8 @@ if __name__ == '__main__':
             get_standings()
             search_query = search()
         elif search_query == 'win':
-            pass
+            if not add_win():
+                search_query = search()
         elif search_query == 'quit':
             print('Goodbye!')
             break

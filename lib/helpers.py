@@ -92,12 +92,22 @@ def get_standings():
     for team in southwest:
         print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
 
-def add_win():
+def update_record():
     while True:
-        team = input('Who won? (type "back" to go back to search) ')
+        result = input("Did the team win or lose? (type 'back' to go back to search) ")
 
-        if team == 'back':
+        if result == 'back':
             return False
+
+        if result.lower() == 'win':
+            team = input("Who won? ")
+            column = 'wins'
+        elif result.lower() == 'lose':
+            team = input("Who lost? ")
+            column = 'losses'
+        else:
+            print("Invalid action. Please enter 'win' or 'lose'.")
+            continue
 
         c.execute("SELECT name, wins, losses FROM Teams WHERE name LIKE ?", ('%' + team + '%',))
         selected_team = c.fetchone()
@@ -107,29 +117,12 @@ def add_win():
         else:
             team_name, wins, losses = selected_team
 
-            c.execute("UPDATE Teams SET wins = ? WHERE name = ?", (wins + 1, team_name))
+            if column == 'wins':
+                c.execute("UPDATE Teams SET wins = ? WHERE name = ?", (wins + 1, team_name))
+                print(f"The {team_name} are now {wins + 1} - {losses}.")
+            else:
+                c.execute("UPDATE Teams SET losses = ? WHERE name = ?", (losses + 1, team_name))
+                print(f"The {team_name} are now {wins} - {losses + 1}.")
+
             conn.commit()
-
-            print(f"The {team_name} are now {wins + 1} - {losses}.")
-            return True
-
-def add_loss():
-    while True:
-        team = input('Who lost? (type "back" to go back to search) ')
-
-        if team == 'back':
-            return False
-
-        c.execute("SELECT name, wins, losses FROM Teams WHERE name LIKE ? ", ('%' + team + '%',))
-        selected_team = c.fetchone()
-
-        if not selected_team:
-            print(f"No team name '{team}' was found.")
-        else:
-            team_name, wins, losses = selected_team
-
-            c.execute("UPDATE Teams SET losses = ? WHERE name = ?", (losses + 1, team_name))
-            conn.commit
-
-            print(f"The {team_name} are now {wins} - {losses + 1}.")
             return True

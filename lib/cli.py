@@ -1,6 +1,6 @@
 #!/user/bin/env python3
 
-from helpers import search, get_lineup, get_all_position, get_standings, add_win, add_loss
+from helpers import search, get_lineup, get_all_position, get_standings, update_record
 
 if __name__ == '__main__':
     print('Welcome to my CLI!')
@@ -16,11 +16,14 @@ if __name__ == '__main__':
         elif search_query == 'standings':
             get_standings()
             search_query = search()
-        elif search_query == 'win':
-            if not add_win():
-                search_query = search()
-        elif search_query == 'loss':
-            if not add_loss():
+        # elif search_query == 'win':
+        #     if not add_win():
+        #         search_query = search()
+        # elif search_query == 'loss':
+        #     if not add_loss():
+        #         search_query = search()
+        elif search_query == 'update':
+            if not update_record():
                 search_query = search()
         elif search_query == 'quit':
             print('Goodbye!')

@@ -1,7 +1,14 @@
-import sqlite3
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+from models import Teams, Players, Coaches
 
-conn = sqlite3.connect('nba_db.db')
-c = conn.cursor()
+engine = create_engine('sqlite:///nba_db.db')
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+Base = declarative_base()
 
 def search():
     search = input('What would you like to search? ')
@@ -9,27 +16,22 @@ def search():
 
 def get_lineup():
     while True:
-        team = input('Which team? (type "back" to go back to search) ')
+        team_name = input('Which team? (type "back" to go back to search) ')
 
-        if team == 'back':
+        if team_name == 'back':
             return False
 
-        c.execute("SELECT id FROM Teams WHERE name LIKE?", ('%' + team + '%',))
-        team_id = c.fetchone()
+        selected_team = session.query(Teams).filter(Teams.name.ilike(f'%{team_name}%')).first()
 
-        if team_id is None:
-            print(f"No team named '{team}' was found.")
+        if selected_team is None:
+            print(f"No team named '{team_name}' was found.")
 
         else:
-            c.execute("SELECT name, position FROM Players WHERE team_id=?", team_id)
-            players = c.fetchall()
+            players = session.query(Players.name, Players.position).filter(Players.team_id == selected_team.id).all()
 
-            c.execute("SELECT name FROM Teams WHERE id=?", team_id)
-            team_name = c.fetchone()[0]
-
-            print(f"The following players are on the {team_name}:")
+            print(f"The following players are on the {selected_team.name}:")
             for player in players:
-                print(f"{player[0]}, {player[1]}")
+                print(f"{player.name}, {player.position}")
             return True
 
 
@@ -40,17 +42,13 @@ def get_all_position():
         if position == 'back':
             return False
 
-        c.execute("""
-            SELECT Players.name, Teams.name
-            FROM Players
-            JOIN Teams ON Players.team_id = Teams.id
-            WHERE Players.position LIKE ?
-        """, ('%' + position + '%',))
-        players = c.fetchall()
+        players = session.query(Players.name, Teams.name)\
+            .join(Teams, Players.team_id == Teams.id)\
+            .filter(Players.position.ilike(f'%{position}%'))\
+            .all()
 
         if not players:
             print(f"No position named '{position}' was found.\nChoose one of the following: PG, SG, SF, PF, C.")
-
         else:
             print(f"The following players play {position}:")
             for player in players:
@@ -60,37 +58,17 @@ def get_all_position():
 
 def get_standings():
     divisions = ["Atlantic", "Central", "Southeast", "Northwest", "Pacific", "Southwest"]
-    div_teams = {}
+    div_teams = {division: [] for division in divisions}
 
     for division in divisions:
-        c.execute('SELECT name, wins, losses FROM Teams WHERE division=?', (division,))
-        div_teams[division] = c.fetchall()
+        teams = session.query(Teams).filter(Teams.division == division).order_by(Teams.wins.desc()).all()
+        div_teams[division] = teams
 
-    atlantic = sorted(div_teams["Atlantic"], key=lambda x: x[1], reverse=True)
-    central = sorted(div_teams["Central"], key=lambda x: x[1], reverse=True)
-    southeast = sorted(div_teams["Southeast"], key=lambda x: x[1], reverse=True)
-    northwest = sorted(div_teams["Northwest"], key=lambda x: x[1], reverse=True)
-    pacific = sorted(div_teams["Pacific"], key=lambda x: x[1], reverse=True)
-    southwest = sorted(div_teams["Southwest"], key=lambda x: x[1], reverse=True)
+    for division in divisions:
+        print(f"       {division} Division")
+        for team in div_teams[division]:
+            print(f"{team.name:<25}{team.wins} - {team.losses}")
 
-    print("       Atlantic Division")
-    for team in atlantic:
-        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
-    print("       Central Division")
-    for team in central:
-        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
-    print("       Southeast Division")
-    for team in southeast:
-        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
-    print("       Northwest Division")
-    for team in northwest:
-        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
-    print("       Pacific Division")
-    for team in pacific:
-        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
-    print("       Southwest Division")
-    for team in southwest:
-        print(f"{team[0]:<25}{team[1]:>2} - {team[2]:<2}")
 
 def update_record():
     while True:
@@ -109,20 +87,17 @@ def update_record():
             print("Invalid action. Please enter 'win' or 'lose'.")
             continue
 
-        c.execute("SELECT name, wins, losses FROM Teams WHERE name LIKE ?", ('%' + team + '%',))
-        selected_team = c.fetchone()
+        selected_team = session.query(Teams).filter(Teams.name.ilike(f'%{team}%')).first()
 
         if not selected_team:
             print(f"No team named '{team}' was found.")
         else:
-            team_name, wins, losses = selected_team
-
             if column == 'wins':
-                c.execute("UPDATE Teams SET wins = ? WHERE name = ?", (wins + 1, team_name))
-                print(f"The {team_name} are now {wins + 1} - {losses}.")
+                selected_team.wins += 1
             else:
-                c.execute("UPDATE Teams SET losses = ? WHERE name = ?", (losses + 1, team_name))
-                print(f"The {team_name} are now {wins} - {losses + 1}.")
+                selected_team.losses += 1
 
-            conn.commit()
+            print(f"The {selected_team.name} are now {selected_team.wins} - {selected_team.losses}.")
+
+            session.commit()
             return True

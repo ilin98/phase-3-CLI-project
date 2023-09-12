@@ -16,12 +16,6 @@ if __name__ == '__main__':
         elif search_query == 'standings':
             get_standings()
             search_query = search()
-        # elif search_query == 'win':
-        #     if not add_win():
-        #         search_query = search()
-        # elif search_query == 'loss':
-        #     if not add_loss():
-        #         search_query = search()
         elif search_query == 'update':
             if not update_record():
                 search_query = search()

@@ -11,7 +11,7 @@ session = Session()
 Base = declarative_base()
 
 def search():
-    search = input('What would you like to search? ')
+    search = input('What would you like to search? ("standings", "update", "lineup", "position"')
     return search
 
 def get_lineup():

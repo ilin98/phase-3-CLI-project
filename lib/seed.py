@@ -83,21 +83,21 @@ if __name__ == '__main__':
                 )
 
             session.add(individual_team)
-            session.commit()
-
             all_teams.append(individual_team)
+    session.commit()
 
     coaches = []
     for team in all_teams:
-        coach = Coaches(
-            name=fake.name(),
-            age=random.randint(30, 70),
-            team_id=team.id
-        )
+        for i in range(3):
+            coach = Coaches(
+                name=fake.name(),
+                age=random.randint(30, 70),
+                team_id=team.id
+            )
 
-        session.add(coach)
-        session.commit()
-        coaches.append(coach)
+            session.add(coach)
+            coaches.append(coach)
+    session.commit()
 
     positions = ['PG', 'SG', 'SF', 'PF', 'C']
 
@@ -112,5 +112,5 @@ if __name__ == '__main__':
             )
 
             session.add(player)
-            session.commit()
             all_players.append(player)
+    session.commit()
